@@ -6,6 +6,7 @@ use App\Models\Destination;
 use App\Models\Trip;
 use App\Models\Tripcategory;
 use App\Models\TripHasImages;
+use App\Services\SeoService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -135,9 +136,18 @@ class TripController extends Controller
     {
         $tripid = $request->id;
         $trip = Trip::where('id', $tripid)->first();
-        $tripImages = TripHasImages::where('trip_id', operator: $tripid)->get();
+        
+        if (!$trip) {
+            abort(404);
+        }
+
+        $seo = new SeoService();
+        $seo->setupTrip($trip);
+
+        $tripImages = TripHasImages::where('trip_id', $tripid)->get();
         $destinations = Destination::with('firstImage')->get();
-        return view('frontend.tripdetails', compact('trip', 'tripImages', 'destinations'));
+        
+        return view('frontend.tripdetails', compact('trip', 'tripImages', 'destinations', 'seo'));
     }
 
     public function viewbycategory($category, $id)
@@ -147,9 +157,17 @@ class TripController extends Controller
             ->with('firstImage')
             ->get();
 
-        $category = Tripcategory::find($id);
+        $categoryModel = Tripcategory::find($id);
         $destinations = Destination::with('firstImage')->get();
 
-        return view('frontend.tripviewbycategory', compact('category', 'id', 'trips', 'destinations'));
+        $seo = new SeoService();
+        $seo->setTitle("{$categoryModel->name} Tours - Sri Lankan Adventures")
+            ->setDescription("Explore our {$categoryModel->name} tours in Sri Lanka. Discover amazing adventures and experiences with Triple SR Travelers.")
+            ->setKeywords(["{$categoryModel->name} tours", 'Sri Lanka adventures', $category, 'travel packages'])
+            ->addBreadcrumb('Home', url('/'))
+            ->addBreadcrumb('Our Trips', url('/fr/trips'))
+            ->addBreadcrumb($categoryModel->name);
+
+        return view('frontend.tripviewbycategory', compact('categoryModel', 'id', 'trips', 'destinations', 'seo'));
     }
 }

@@ -1,0 +1,37 @@
+name: Deploy to Contabo on PR to main
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
+
+jobs:
+  deploy:
+    name: Deploy to Contabo Server
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Run remote deployment commands
+        run: |
+          ssh -i ~/.ssh/id_ed25519 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
+            cd ${{ secrets.PROJECT_PATH }}
+            echo "Pulling latest code..."
+            git fetch origin main
+            git reset --hard origin/main
+            echo "Installing dependencies..."
+            composer install --no-interaction --prefer-dist --optimize-autoloader
+            echo "Running migrations..."
+            php artisan migrate --force
+            echo "Deployment complete!"
+          EOF

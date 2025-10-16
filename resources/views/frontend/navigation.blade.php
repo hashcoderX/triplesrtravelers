@@ -14,8 +14,9 @@
     <div class="nav-left d-none d-md-flex">
         <ul class="nav-links">
             <li><a href="#">Discover</a></li>
-            <li><a href="/fr/trips">Trips</a></li>
-            <li><a href="/fr/review">Review</a></li>
+            <li><a href="/fr/trips">Our Trips</a></li>
+            <li><a href="/fr/itinerary">Our Itineraries</a></li>
+            <li><a href="/fr/review">Our Reviews</a></li>
         </ul>
     </div>
 
@@ -174,7 +175,6 @@
             },
             success: function(response) {
                 if (response.status == 200) {
-                    // window.location.href = '/customerlogin';
                     // Close registration modal
                     $('#exampleModal').modal('hide');
 
@@ -193,7 +193,6 @@
         });
     }
 
-
     function signin() {
         var email = document.getElementById('email_login').value;
         var password = document.getElementById('password_login').value;
@@ -202,14 +201,6 @@
             alert("Please fill in both email and password.");
             return;
         }
-
-        // Show the loader
-        // document.querySelector('.preloader').style.display = 'block';
-
-        // Disable the Sign In button
-        // const signInButton = document.querySelector('.rentol-btn');
-        // signInButton.disabled = true;
-        // signInButton.innerText = 'Signing in...';
 
         $.ajax({
             url: "/customerlogin",
@@ -227,18 +218,10 @@
                     window.location.href = response.redirect;
                 } else {
                     alert(response.message);
-                    // Hide loader and re-enable button if login failed
-                    document.querySelector('.preloader').style.display = 'none';
-                    signInButton.disabled = false;
-                    signInButton.innerText = 'Sign in';
                 }
             },
             error: function(xhr) {
                 alert("An error occurred. Please try again.");
-                // Hide loader and re-enable button if server error
-                document.querySelector('.preloader').style.display = 'none';
-                signInButton.disabled = false;
-                signInButton.innerText = 'Sign in';
             }
         });
     }

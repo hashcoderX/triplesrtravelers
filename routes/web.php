@@ -34,6 +34,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RegionController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\TripcategoryController;
 use App\Http\Controllers\TripController;
@@ -92,6 +93,11 @@ Route::middleware('guest')->group(function () {
 
     Route::post('/customerlogin', [AuthController::class, 'customerLogin'])->name('customerLogin');
 });
+
+
+// SEO Routes
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+Route::get('/robots.txt', [SitemapController::class, 'robotsTxt'])->name('robots');
 
 
 // front end 
